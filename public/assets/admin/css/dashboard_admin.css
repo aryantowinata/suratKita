@@ -1,0 +1,29 @@
+/* dashboard.css */
+.dashboard-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 1rem;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.card-title {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+h3 {
+    font-size: 2rem;
+    margin: 0;
+}
