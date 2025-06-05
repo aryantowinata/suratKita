@@ -12,6 +12,7 @@ class SuratMasuk extends Model
 
     protected $fillable = [
         'nomor_surat',
+        'no_agenda',
         'pengirim',
         'perihal',
         'tanggal_surat',
@@ -69,7 +70,4 @@ class SuratMasuk extends Model
     {
         return $this->belongsToMany(User::class, 'surat_masuk_role', 'surat_masuk_id', 'user_id');
     }
-
-
-
 }

@@ -114,18 +114,21 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <select name="id_bidang" class="form-select form-select-sm"
-                                                    onchange="this.form.submit()">
-                                                    <option value="">Pilih Bidang</option>
-                                                    @foreach($bidangs as $bidang)
-                                                    <option value="{{ $bidang->id }}"
-                                                        {{ $disposisi->id_bidang == $bidang->id ? 'selected' : '' }}>
+
+                                                @foreach($bidangs as $bidang)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="bidang_ids[]"
+                                                        value="{{ $bidang->id }}"
+                                                        {{ $disposisi->bidangs->contains($bidang->id) ? 'checked' : '' }}
+                                                        onchange="this.form.submit()">
+                                                    <label class="form-check-label">
                                                         {{ $bidang->nama_bidang }}
-                                                    </option>
-                                                    @endforeach
-                                                </select>
+                                                    </label>
+                                                </div>
+                                                @endforeach
                                             </form>
                                         </td>
+
                                     </tr>
                                     @endforeach
                                 </tbody>

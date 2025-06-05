@@ -26,7 +26,8 @@
                                 <h5 class="card-title">Surat Masuk</h5>
 
                                 <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <div
+                                        class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                         <i class="bi bi-envelope"></i>
                                     </div>
                                     <div class="ps-3">
@@ -39,25 +40,6 @@
                         </div>
                     </div><!-- End Sales Card -->
 
-                    <!-- Revenue Card -->
-                    <div class="col-xxl-4 col-md-6">
-                        <div class="card info-card revenue-card">
-                            <div class="card-body">
-                                <h5 class="card-title">Users</h5>
-
-                                <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-people-fill"></i>
-                                    </div>
-                                    <div class="ps-3">
-                                        <h6>{{$totalUsers}}</h6>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- End Revenue Card -->
-
 
 
                 </div>
@@ -67,10 +49,10 @@
 </main><!-- End #main -->
 
 <script>
-    history.pushState(null, null, location.href);
-    window.onpopstate = function() {
-        history.go(1);
-    };
+history.pushState(null, null, location.href);
+window.onpopstate = function() {
+    history.go(1);
+};
 </script>
 
 @endsection

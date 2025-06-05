@@ -147,6 +147,13 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link collapsed{{ request()->routeIs('admin.instruksi') ? 'active' : '' }}"
+                    href="{{route('admin.instruksi')}}">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Instruksi</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link collapsed{{ request()->routeIs('admin.users') ? 'active' : '' }}"
                     href="{{route('admin.users')}}">
                     <i class="bi bi-people-fill"></i>
@@ -204,17 +211,14 @@
 
 
 
-    <script src="{{ asset('assets/admin/js/main.js')}}"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // SweetAlert2 Toast untuk konfirmasi penghapusan
             const deleteButtons = document.querySelectorAll('.btn-delete');
 
             deleteButtons.forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     const deleteUrl = this.getAttribute('data-url');
 
                     Swal.fire({
@@ -255,17 +259,17 @@
 
             // SweetAlert2 Toast untuk pesan sukses
             @if(session('success'))
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: "{{ session('success') }}",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
             @endif
-    });
+        });
     </script>
 
 </body>

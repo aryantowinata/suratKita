@@ -37,4 +37,9 @@ class Disposisi extends Model
     {
         return $this->belongsToMany(Instruksi::class, 'disposisi_instruksi', 'disposisi_id', 'instruksi_id');
     }
+
+    public function bidangs()
+    {
+        return $this->belongsToMany(Bidang::class, 'bidang_disposisi');
+    }
 }

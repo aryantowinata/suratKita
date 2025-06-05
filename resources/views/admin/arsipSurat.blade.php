@@ -44,6 +44,7 @@
                                         <th>No</th>
                                         <th>Jenis </th>
                                         <th>No Surat</th>
+                                        <th>No Agenda</th>
                                         <th>Pengirim</th>
                                         <th>Perihal</th>
                                         <th>Tanggal </th>
@@ -58,6 +59,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ ucfirst($arsip->jenis_surat) }}</td>
                                         <td>{{ $arsip->nomor_surat }}</td>
+                                        <td>{{ $arsip->no_agenda }}</td>
                                         <td>{{ $arsip->pengirim ?? $arsip->penerima ?? '-' }}</td>
                                         <td>{{ $arsip->perihal }}</td>
                                         <td>{{ \Carbon\Carbon::parse($arsip->tanggal_surat)->format('d M Y') }}</td>
@@ -143,6 +145,11 @@
                     <div class="mb-3">
                         <label for="nomor_surat" class="form-label">Nomor Surat</label>
                         <input type="text" name="nomor_surat" class="form-control" value="{{ $arsip->nomor_surat }}"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="no_agenda" class="form-label">Nomor Agenda</label>
+                        <input type="text" name="no_agenda" class="form-control" value="{{ $arsip->no_agenda }}"
                             required>
                     </div>
 

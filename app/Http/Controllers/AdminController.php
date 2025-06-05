@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Helpers\LogAktivitasHelper;
@@ -8,6 +9,7 @@ use App\Models\SuratMasuk;
 use App\Models\ArsipSurat;
 use App\Models\Bidang;
 use App\Models\Disposisi;
+use App\Models\Instruksi;
 use App\Models\SuratKeluar;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -74,42 +76,69 @@ class AdminController extends Controller
         $surat = SuratMasuk::findOrFail($id);
         $roleIds = $request->input('id_role', []);
 
-        $validRoleIds = User::whereIn('id', $roleIds)->pluck('id')->toArray();
+        $validUsers = User::whereIn('id', $roleIds)->get();
 
-        if (empty($validRoleIds)) {
+        if ($validUsers->isEmpty()) {
             return back()->with('error', 'Role tidak valid');
         }
 
-        $surat->roles()->sync($validRoleIds);
+        // Simpan relasi many-to-many
+        $surat->tujuanSurat()->sync($validUsers->pluck('id')->toArray());
 
-        $roleUsers = User::whereIn('id', $validRoleIds)->get();
-
-        foreach ($roleUsers as $user) {
-            $urlLogin = $user->generateLoginToken(); // method ini ada di model User
-            $pesan = "Halo {$user->name},\nAnda menerima surat masuk baru dengan nomor: {$surat->nomor_surat}\n\nKlik untuk login otomatis (berlaku 15 menit):\n{$urlLogin}";
-
-            Http::withHeaders([
-                'Authorization' => 'xyrtzMQSmQZuhN8Tkha9gAEBm9rWDEUsmps4n', // ganti dengan token Fonnte kamu
-            ])->asForm()->post('https://api.fonnte.com/send', [
-                        'target' => $user->phone, // harus format 628xxx
-                        'message' => $pesan,
-                        'countryCode' => '62',
-                    ]);
+        // Kirim notifikasi WA ke setiap user
+        foreach ($validUsers as $user) {
+            $this->sendWhatsAppNotification($user->phone, $user->name, 'Penerima Surat');
         }
 
-        $roleNames = $roleUsers->pluck('role')->toArray();
-        $roleNamesString = implode(', ', $roleNames);
-
+        $roleNamesString = $validUsers->pluck('name')->implode(', ');
         LogAktivitasHelper::log('Update Role Surat', "Admin mengupdate role surat masuk dengan nomor {$surat->nomor_surat} ke $roleNamesString");
 
-        return back()->with('success', 'Surat berhasil dikirim ke ' . $roleNamesString);
+        return back()->with('success', "Surat berhasil dikirim ke $roleNamesString");
     }
 
+    private function sendWhatsAppNotification($phone, $name, $var1)
+    {
+        $token = 'voMEHbE9qQJPJp9GiR5U'; // Ganti dengan token Fonnte Anda
+
+        $target = "{$phone}|{$name}|{$var1}";
+        $message = "Halo {name}, Anda mendapatkan surat masuk baru sebagai {var1}";
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $target,
+                'message' => $message,
+                'schedule' => 0,
+                'typing' => false,
+                'delay' => 1,
+                'countryCode' => '62',
+            ),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $token
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        // Optional: Log response dari Fonnte (debugging)
+        // \Log::info("WA sent to {$phone}: " . $response);
+    }
 
     public function storeSuratMasuk(Request $request)
     {
         $request->validate([
             'nomor_surat' => 'required|string|max:255',
+            'no_agenda' => 'required|string|max:255',
             'pengirim' => 'required|string|max:255',
             'perihal' => 'required|string',
             'tanggal_surat' => 'required|date',
@@ -127,6 +156,7 @@ class AdminController extends Controller
 
         $surat = SuratMasuk::create([
             'nomor_surat' => $request->nomor_surat,
+            'no_agenda' => $request->no_agenda,
             'pengirim' => $request->pengirim,
             'perihal' => $request->perihal,
             'tanggal_surat' => $request->tanggal_surat,
@@ -139,6 +169,7 @@ class AdminController extends Controller
             ['nomor_surat' => $surat->nomor_surat],
             [
                 'pengirim' => $surat->pengirim,
+                'no_agenda' => $surat->no_agenda,
                 'perihal' => $surat->perihal,
                 'tanggal_surat' => $surat->tanggal_surat,
                 'jenis_surat' => 'masuk',
@@ -185,6 +216,7 @@ class AdminController extends Controller
 
         $request->validate([
             'nomor_surat' => 'required|string|max:255',
+            'no_agenda' => 'required|string|max:255',
             'pengirim' => 'required|string|max:255',
             'perihal' => 'required|string',
             'tanggal_surat' => 'required|date',
@@ -360,6 +392,7 @@ class AdminController extends Controller
                 ['nomor_surat' => $surat->nomor_surat],
                 [
                     'pengirim' => $surat->pengirim,
+                    'no_agenda' => $surat->no_agenda,
                     'perihal' => $surat->perihal,
                     'tanggal_surat' => $surat->tanggal_surat,
                     'file_surat' => $surat->file_surat,
@@ -392,6 +425,7 @@ class AdminController extends Controller
 
         $request->validate([
             'nomor_surat' => 'required|string|max:255',
+            'no_agenda' => 'required|string|max:255',
             'pengirim' => 'required|string|max:255',
             'perihal' => 'required|string',
             'tanggal_surat' => 'required|date',
@@ -417,6 +451,7 @@ class AdminController extends Controller
         // Update data arsip
         $arsip->update([
             'nomor_surat' => $request->nomor_surat,
+            'no_agenda' => $request->no_agenda,
             'pengirim' => $request->pengirim,
             'perihal' => $request->perihal,
             'tanggal_surat' => $request->tanggal_surat,
@@ -897,4 +932,67 @@ class AdminController extends Controller
         return redirect()->route('admin.bidang')->with('success', 'Bidang berhasil dihapus.');
     }
 
+
+    public function instruksi(Request $request)
+    {
+        $adminData = Auth::user();
+        $instruksi = Instruksi::all();
+
+        LogAktivitasHelper::log('Lihat Data Instruksi', 'Admin mengakses halaman instruksi surat');
+
+        return view('admin.instruksi', compact('instruksi', 'adminData'));
+    }
+
+    public function hapusInstruksi($id)
+    {
+        $instruksi = Instruksi::findOrFail($id);
+
+        $instruksi->delete();
+
+        LogAktivitasHelper::log('Hapus Instruksi Surat', "Data instruksi surat : {$instruksi->nama_instruksi} dihapus.");
+
+        return redirect()->route('admin.instruksi')->with('success', 'Instruksi surat berhasil dihapus.');
+    }
+
+    public function updateInstruksi(Request $request, $id)
+    {
+        $instruksi = Instruksi::findOrFail($id);
+
+        $request->validate([
+
+            'nama_instruksi' => 'required|string|max:255',
+
+        ]);
+
+
+        // Update data arsip
+        $instruksi->update([
+            'nama_instruksi' => $request->nama_instruksi,
+        ]);
+
+        LogAktivitasHelper::log('Update Instruksi Surat', "Data arsip surat : {$instruksi->nama_instruksi} diperbarui.");
+
+        return redirect()->route('admin.instruksi')->with('success', 'Instruksi surat berhasil diperbarui.');
+    }
+
+    public function storeinstruksi(Request $request)
+    {
+        $request->validate([
+            'nama_instruksi' => 'required|string|max:255',
+
+        ]);
+
+
+        $instruksi = Instruksi::create([
+
+            'nama_instruksi' => $request->nama_instruksi,
+
+
+        ]);
+
+
+        LogAktivitasHelper::log('Tambah Instruksi Surat', "Admin menambahkan instruksi surat dengan : {$instruksi->nama_instruksi}");
+
+        return redirect()->route('admin.instruksi')->with('success', 'Instruksi surat berhasil ditambahkan ');
+    }
 }

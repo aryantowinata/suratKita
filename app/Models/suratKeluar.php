@@ -10,7 +10,14 @@ class SuratKeluar extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'nomor_surat', 'tujuan', 'perihal', 'tanggal_surat', 'status', 'pengirim', 'file_surat','jenis_surat'
+        'nomor_surat',
+        'tujuan',
+        'perihal',
+        'tanggal_surat',
+        'status',
+        'pengirim',
+        'file_surat',
+        'jenis_surat'
     ];
 
     public function setNomorSuratAttribute($value)

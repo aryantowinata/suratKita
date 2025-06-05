@@ -33,6 +33,7 @@
                                         <th>No</th>
                                         <th>Tanggal </th>
                                         <th>No Surat</th>
+                                        <th>No Agenda</th>
                                         <th>Perihal </th>
                                         <th>Pengirim </th>
                                         <th>Jenis </th>
@@ -47,6 +48,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $surat->tanggal_surat}}</td>
                                         <td>{{ $surat->nomor_surat}}</td>
+                                        <td>{{ $surat->no_agenda}}</td>
                                         <td>{{ $surat->perihal}}</td>
                                         <td>{{ $surat->pengirim}}</td>
                                         <td>{{ $surat->jenis_surat}}</td>
@@ -131,6 +133,10 @@
                         <label for="nomor_surat" class="form-label">Nomor Surat</label>
                         <input type="text" name="nomor_surat" class="form-control" id="nomor_surat" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="no_agenda" class="form-label">Nomor Agenda</label>
+                        <input type="text" name="no_agenda" class="form-control" id="no_agenda" required>
+                    </div>
 
                     <div class="mb-3">
                         <label for="pengirim" class="form-label">Pengirim</label>
@@ -185,6 +191,11 @@
                     <div class="mb-3">
                         <label class="form-label">Nomor Surat</label>
                         <input type="text" name="nomor_surat" class="form-control" value="{{ $surat->nomor_surat }}"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nomor Agenda</label>
+                        <input type="text" name="no_agenda" class="form-control" value="{{ $surat->no_agenda }}"
                             required>
                     </div>
 

@@ -10,8 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('foto_profile')->nullable()->comment('URL atau path ke foto profil pengguna');
+        Schema::table('arsip_surats', function (Blueprint $table) {
+            $table->string('no_agenda')->after('nomor_surat')->nullable();
         });
     }
 
@@ -20,8 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::table('arsip_surats', function (Blueprint $table) {
+            $table->dropColumn('no_agenda');
         });
     }
 };

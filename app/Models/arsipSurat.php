@@ -12,6 +12,7 @@ class ArsipSurat extends Model
     protected $fillable =
     [
         'nomor_surat',
+        'no_agenda',
         'pengirim',
         'penerima',
         'perihal',

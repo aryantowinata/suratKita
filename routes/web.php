@@ -7,19 +7,19 @@ use App\Http\Controllers\PegawaiController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\PegawaiMiddleware;
 use App\Http\Middleware\PimpinanMiddleware;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
+Route::redirect('/', '/auth/login');
 Route::middleware(['redirect.auth'])->group(function () {
     Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('auth.login');
     Route::post('/auth/postLogin', [LoginController::class, 'postLogin'])->name('auth.postLogin');
     Route::get('/login/token/{token}', [LoginController::class, 'loginWithToken'])->name('login.token');
-
 });
 
 Route::middleware([AdminMiddleware::class])->name('admin.')->group(function () {
     Route::get('/admin/surat-masuk/download/{id}', [AdminController::class, 'download'])->name('surat-masuk.download');
     Route::get('/admin/laporan/cetak-pdf', [AdminController::class, 'cetakPDF'])->name('laporan.pdf');
-    Route::put('/admin/surat-masuk/update-role/{id}', [AdminController::class, 'updateRole'])->name('surat-masuk.updateRole');
 
     Route::get('/admin/dashboard', [AdminController::class, 'dashboardAdmin'])->name('dashboard');
     Route::get('/admin/suratMasuk', [AdminController::class, 'suratMasuk'])->name('suratMasuk');
@@ -30,6 +30,7 @@ Route::middleware([AdminMiddleware::class])->name('admin.')->group(function () {
     Route::delete('/admin/hapusBidang/{id}', [AdminController::class, 'hapusBidang'])->name('hapusBidang');
     Route::post('/admin/logout', [AdminController::class, 'logout'])->name('logout');
     Route::post('/admin/storeSuratMasuk', [AdminController::class, 'storeSuratMasuk'])->name('storeSuratMasuk');
+    Route::post('/admin/storeinstruksi', [AdminController::class, 'storeinstruksi'])->name('storeInstruksi');
     Route::put('/admin/suratMasuk/update/{id}', [AdminController::class, 'updateSuratMasuk'])->name('updateSuratMasuk');
     Route::delete('/admin/hapusSuratMasuk/{id}', [AdminController::class, 'hapusSuratMasuk'])->name('hapusSuratMasuk');
     Route::get('/admin/arsipSurat', [AdminController::class, 'arsipSurat'])->name('arsipSurat');
@@ -37,8 +38,11 @@ Route::middleware([AdminMiddleware::class])->name('admin.')->group(function () {
     Route::put('/admin/arsipSurat/update-status/{id}', [AdminController::class, 'updateStatusArsip'])->name('updateStatusArsip');
     Route::put('/admin/suratMasuk/status/{id}', [AdminController::class, 'updateStatusSuratMasuk'])->name('updateStatusSuratMasuk');
     Route::put('/admin/arsipSurat/update/{id}', [AdminController::class, 'updateArsipSurat'])->name('updateArsipSurat');
+    Route::put('/admin/instruksi/update/{id}', [AdminController::class, 'updateinstruksi'])->name('updateInstruksi');
     Route::delete('/admin/arsipSurat/hapus/{id}', [AdminController::class, 'hapusArsipSurat'])->name('hapusArsipSurat');
+    Route::delete('/admin/instruksi/hapus/{id}', [AdminController::class, 'hapusinstruksi'])->name('hapusInstruksi');
     Route::get('/admin/users', [AdminController::class, 'users'])->name('users');
+    Route::get('/admin/instruksi', [AdminController::class, 'instruksi'])->name('instruksi');
     Route::post('/admin/storeUsers', [AdminController::class, 'storeUsers'])->name('storeUsers');
     Route::put('/admin/users/update/{id}', [AdminController::class, 'updateUsers'])->name('updateUsers');
     Route::delete('/admin/users/hapus/{id}', [AdminController::class, 'hapusUsers'])->name('hapusUsers');
@@ -51,7 +55,8 @@ Route::middleware([AdminMiddleware::class])->name('admin.')->group(function () {
     Route::post('/admin/storeSuratKeluar', [AdminController::class, 'storeSuratKeluar'])->name('storeSuratKeluar');
     Route::put('/admin/suratKeluar/update/{id}', [AdminController::class, 'updateSuratKeluar'])->name('updateSuratKeluar');
     Route::delete('/admin/hapusSuratkeluar/{id}', [AdminController::class, 'hapusSuratKeluar'])->name('hapusSuratKeluar');
-    Route::put('/admin/suratMasuk/{id}/update-role', [AdminController::class, 'updateRole'])->name('updateRoleSuratMasuk');
+    Route::post('/admin/surat/{id}/update-role', [AdminController::class, 'updateRole'])->name('surat.updateRole');
+    Route::get('/admin/surat/{id}/kirim-wa', [AdminController::class, 'kirimWaNotifikasi'])->name('surat.kirimWa');
 });
 
 Route::middleware([PimpinanMiddleware::class])->name('pimpinan.')->group(function () {
@@ -67,7 +72,9 @@ Route::middleware([PimpinanMiddleware::class])->name('pimpinan.')->group(functio
     Route::put('/pimpinan/disposisiSuratMasuk/statusSuratMasuk/{id}', [PimpinanController::class, 'updateStatusSuratMasuk'])->name('updateStatusSuratMasuk');
     Route::put('/pimpinan/disposisiSuratKeluar/statusSuratKeluar/{id}', [PimpinanController::class, 'updateStatusSuratKeluar'])->name('updateStatusSuratKeluar');
     Route::put('/pimpinan/disposisiSuratMasuk/statusDisposisi/{id}', [PimpinanController::class, 'updateStatusDisposisi'])->name('updateStatusDisposisi');
-    Route::put('/pimpinan/disposisiSuratMasuk/bidang/{id}', [PimpinanController::class, 'updateBidang'])->name('updateBidang');
+    Route::put('/pimpinan/disposisiSuratMasuk/update-bidang/{id}', [PimpinanController::class, 'updateBidang'])->name('updateBidang');
+
+
     Route::get('/pimpinan/profile', [PimpinanController::class, 'profilePimpinan'])->name('profile');
     Route::post('/pimpinan/profile/update', [PimpinanController::class, 'updateProfilePimpinan'])->name('updateProfilePimpinan');
     Route::post('/pimpinan/update-password', [PimpinanController::class, 'updatePasswordPimpinan'])->name('updatePasswordPimpinan');
@@ -75,7 +82,6 @@ Route::middleware([PimpinanMiddleware::class])->name('pimpinan.')->group(functio
     Route::post('/pimpinan/disposisiSuratKeluar/storeSuratKeluar', [PimpinanController::class, 'storeSuratKeluar'])->name('storeSuratKeluar');
     Route::put('/pimpinan/disposisiSuratKeluar/update/{id}', [PimpinanController::class, 'updateDisposisiSuratKeluar'])->name('updateDisposisiSuratKeluar');
     Route::delete('/pimpinan/disposisiSuratKeluar/delete/{id}', [PimpinanController::class, 'hapusDisposisiSuratKeluar'])->name('hapusDisposisiSuratKeluar');
-
 });
 
 Route::middleware([PegawaiMiddleware::class])->name('pegawai.')->group(function () {

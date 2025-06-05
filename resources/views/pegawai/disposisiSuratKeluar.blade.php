@@ -36,12 +36,18 @@
                                         <th>Instruksi</th>
                                         <th>Status </th>
                                         <th>File </th>
-                                        <th>Bidang</th>
+                                        <th>Tujuan</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                    $hasSurat = false;
+                                    @endphp
+
                                     @foreach ($disposisis as $index => $disposisi)
+                                    @if ($disposisi->suratKeluar)
+                                    @php $hasSurat = true; @endphp
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $disposisi->suratKeluar->nomor_surat ?? 'Tidak Ada' }}</td>
@@ -61,17 +67,13 @@
                                                         name="instruksi_ids[]" value="{{ $instruksi->id }}"
                                                         {{ $disposisi->instruksis->contains($instruksi->id) ? 'checked' : '' }}
                                                         onchange="this.form.submit()" disabled>
-                                                    <label class="form-check-label">
-                                                        {{ $instruksi->nama_instruksi }}
-                                                    </label>
+                                                    <label
+                                                        class="form-check-label">{{ $instruksi->nama_instruksi }}</label>
                                                 </div>
                                                 @endforeach
                                             </form>
                                             @endif
                                         </td>
-
-
-
                                         <td>
                                             <form
                                                 action="{{ route('pegawai.updateStatusSuratKeluar', $disposisi->suratKeluar->id) }}"
@@ -82,19 +84,21 @@
                                                     onchange="this.form.submit()">
                                                     <option value="menunggu"
                                                         {{ $disposisi->suratKeluar->status == 'menunggu' ? 'selected' : '' }}>
-                                                        Menunggu</option>
+                                                        Menunggu
+                                                    </option>
                                                     <option value="ditolak"
                                                         {{ $disposisi->suratKeluar->status == 'ditolak' ? 'selected' : '' }}>
-                                                        Ditolak</option>
+                                                        Ditolak
+                                                    </option>
                                                     <option value="disetujui"
                                                         {{ $disposisi->suratKeluar->status == 'disetujui' ? 'selected' : '' }}>
-                                                        DIsetujui</option>
-
+                                                        Disetujui
+                                                    </option>
                                                 </select>
                                             </form>
                                         </td>
                                         <td>
-                                            @if($disposisi->suratKeluar->file_surat)
+                                            @if ($disposisi->suratKeluar->file_surat)
                                             <a href="{{ route('pegawai.surat-keluar.download', $disposisi->suratKeluar->id) }}"
                                                 class="btn btn-success btn-sm">
                                                 <i class="bi bi-download"></i> Unduh
@@ -103,13 +107,18 @@
                                             <span class="text-muted">Tidak ada file</span>
                                             @endif
                                         </td>
-                                        <td>
-                                            {{ $disposisi->bidang->nama_bidang }}
-                                        </td>
-
+                                        <td>{{ $disposisi->suratKeluar->tujuan ?? '-' }}</td>
                                     </tr>
+                                    @endif
                                     @endforeach
+
+                                    @if (!$hasSurat)
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Tidak Ada Surat</td>
+                                    </tr>
+                                    @endif
                                 </tbody>
+
                             </table>
                         </div>
                         <!-- End Table with stripped rows -->

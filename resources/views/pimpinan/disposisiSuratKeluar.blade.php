@@ -38,14 +38,20 @@
                                         <th>Instruksi</th>
                                         <th>Status </th>
                                         <th>File </th>
-                                        <th>Bidang</th>
+                                        <th>Tujuan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                    $hasSurat = false;
+                                    @endphp
+
                                     @foreach ($disposisis as $index => $disposisi)
+                                    @if ($disposisi->suratKeluar)
+                                    @php $hasSurat = true; @endphp
                                     <tr>
-                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $index + 0 }}</td>
                                         <td>{{ $disposisi->suratKeluar->nomor_surat ?? 'Tidak Ada' }}</td>
                                         <td>{{ $disposisi->suratKeluar->pengirim ?? 'Tidak Ada' }}</td>
                                         <td>{{ $disposisi->suratKeluar->perihal ?? 'Tidak Ada' }}</td>
@@ -64,17 +70,13 @@
                                                         name="instruksi_ids[]" value="{{ $instruksi->id }}"
                                                         {{ $disposisi->instruksis->contains($instruksi->id) ? 'checked' : '' }}
                                                         onchange="this.form.submit()">
-                                                    <label class="form-check-label">
-                                                        {{ $instruksi->nama_instruksi }}
-                                                    </label>
+                                                    <label
+                                                        class="form-check-label">{{ $instruksi->nama_instruksi }}</label>
                                                 </div>
                                                 @endforeach
                                             </form>
                                             @endif
                                         </td>
-
-
-
                                         <td>
                                             <form
                                                 action="{{ route('pimpinan.updateStatusSuratKeluar', $disposisi->suratKeluar->id) }}"
@@ -91,8 +93,7 @@
                                                         Ditolak</option>
                                                     <option value="disetujui"
                                                         {{ $disposisi->suratKeluar->status == 'disetujui' ? 'selected' : '' }}>
-                                                        DIsetujui</option>
-
+                                                        Disetujui</option>
                                                 </select>
                                             </form>
                                         </td>
@@ -106,28 +107,12 @@
                                             <span class="text-muted">Tidak ada file</span>
                                             @endif
                                         </td>
-                                        <td>
-                                            <form action="{{ route('pimpinan.updateBidang', $disposisi->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <select name="id_bidang" class="form-select form-select-sm"
-                                                    onchange="this.form.submit()">
-                                                    <option value="">Pilih Bidang</option>
-                                                    @foreach($bidangs as $bidang)
-                                                    <option value="{{ $bidang->id }}"
-                                                        {{ $disposisi->id_bidang == $bidang->id ? 'selected' : '' }}>
-                                                        {{ $bidang->nama_bidang }}
-                                                    </option>
-                                                    @endforeach
-                                                </select>
-
-                                            </form>
-                                        </td>
+                                        <td>{{ $disposisi->suratKeluar->tujuan ?? 'Tidak Ada' }}</td>
                                         <td>
                                             <a href="#" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                                data-bs-target="#editSuratKeluarModal-{{ $disposisi->id }}"><i
-                                                    class="bi bi-pen"></i></a>
+                                                data-bs-target="#editSuratKeluarModal-{{ $disposisi->id }}">
+                                                <i class="bi bi-pen"></i>
+                                            </a>
                                             <form
                                                 action="{{ route('pimpinan.hapusDisposisiSuratKeluar', $disposisi->id) }}"
                                                 method="POST" style="display:inline-block;">
@@ -140,8 +125,16 @@
                                             </form>
                                         </td>
                                     </tr>
+                                    @endif
                                     @endforeach
+
+                                    @if (!$hasSurat)
+                                    <tr>
+                                        <td colspan="10" class="text-center text-muted">Tidak Ada Surat</td>
+                                    </tr>
+                                    @endif
                                 </tbody>
+
                             </table>
                         </div>
                         <!-- End Table with stripped rows -->
@@ -212,6 +205,7 @@
 </div>
 
 @foreach ($disposisis as $disposisi)
+@if ($disposisi->suratKeluar)
 <div class="modal fade" id="editSuratKeluarModal-{{ $disposisi->id }}" tabindex="-1"
     aria-labelledby="editSuratKeluarModal" aria-hidden="true">
     <div class="modal-dialog">
@@ -293,19 +287,6 @@
                         </select>
                     </div>
 
-                    <!-- Bidang -->
-                    <div class="mb-3">
-                        <label for="id_bidang" class="form-label">Bidang</label>
-                        <select name="id_bidang" class="form-select">
-                            <option value="">Pilih Bidang</option>
-                            @foreach($bidangs as $bidang)
-                            <option value="{{ $bidang->id }}"
-                                {{ $disposisi->id_bidang == $bidang->id ? 'selected' : '' }}>
-                                {{ $bidang->nama_bidang }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -315,6 +296,7 @@
         </div>
     </div>
 </div>
+@endif
 @endforeach
 
 

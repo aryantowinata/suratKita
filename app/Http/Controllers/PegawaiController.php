@@ -23,11 +23,17 @@ class PegawaiController extends Controller
     {
 
         $adminData = Auth::user();
-        $totalSuratMasuk = SuratMasuk::count();
+        $userBidangId = $adminData->id_bidang;
+        $totalSuratMasuk = Disposisi::where('jenis_surat', 'masuk')
+            ->whereHas('bidangs', function ($query) use ($userBidangId) {
+                $query->where('bidang_id', $userBidangId);
+            })
+            ->with(['suratMasuk', 'bidangs']) // relasi surat dan bidang
+            ->count();
         $totalDisposisi = SuratMasuk::where('status', 'selesai')->count();
-        $totalUsers = User::whereIn('role', ['pimpinan', 'pegawai'])->count();
 
-        return response()->view('pegawai.dashboard', compact('adminData', 'totalSuratMasuk', 'totalUsers', 'totalDisposisi'))
+
+        return response()->view('pegawai.dashboard', compact('adminData', 'totalSuratMasuk',  'totalDisposisi'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -111,17 +117,24 @@ class PegawaiController extends Controller
         $adminData = Auth::user();
         $allInstruksis = Instruksi::all();
 
-        // Ambil hanya disposisi yang jenis_surat = masuk, dan sertakan data surat masuk
+        $userBidangId = $adminData->id_bidang;
+
+        // Ambil disposisi dengan surat masuk & bidang yang cocok dengan user
         $disposisis = Disposisi::where('jenis_surat', 'masuk')
-            ->where('id_bidang', Auth::user()->id_bidang) // Sesuai bidang user yang login
-            ->with('suratMasuk') // Tetap ambil relasi ke surat masuk
+            ->whereHas('bidangs', function ($query) use ($userBidangId) {
+                $query->where('bidang_id', $userBidangId);
+            })
+            ->with(['suratMasuk', 'bidangs']) // relasi surat dan bidang
             ->get();
 
-        // Log aktivitas akses disposisi
-        LogAktivitasHelper::log('Lihat Disposisi Surat Masuk', "{$adminData->nama} mengakses daftar disposisi surat masuk");
+        LogAktivitasHelper::log(
+            'Lihat Disposisi Surat Masuk',
+            "{$adminData->nama} mengakses daftar disposisi surat masuk sesuai bidang"
+        );
 
         return view('pegawai.disposisiSuratMasuk', compact('disposisis', 'adminData', 'allInstruksis'));
     }
+
 
     public function download($id)
     {
@@ -350,5 +363,4 @@ class PegawaiController extends Controller
 
         return $pdf->download('Laporan_Surat_' . Carbon::now()->format('Ymd_His') . '.pdf');
     }
-
 }

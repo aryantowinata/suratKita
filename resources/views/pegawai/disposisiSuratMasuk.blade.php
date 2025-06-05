@@ -41,7 +41,7 @@
                                     @forelse ($disposisis as $index => $disposisi)
                                     @if ($disposisi->suratMasuk)
                                     <tr>
-                                        <td>{{ $index + 0 }}</td>
+                                        <td>{{ $index + 1 }}</td>
                                         <td>{{ $disposisi->suratMasuk->nomor_surat }}</td>
                                         <td>{{ $disposisi->suratMasuk->pengirim }}</td>
                                         <td>{{ $disposisi->suratMasuk->perihal }}</td>
@@ -101,7 +101,15 @@
                                             <span class="text-muted">Tidak ada file</span>
                                             @endif
                                         </td>
-                                        <td>{{ $disposisi->bidang->nama_bidang }}</td>
+                                        <td>
+                                            @php
+                                            $userBidangId = auth()->user()->id_bidang;
+                                            $matchingBidang = $disposisi->bidangs->firstWhere('id', $userBidangId);
+                                            @endphp
+
+                                            {{ $matchingBidang ? $matchingBidang->nama_bidang : '-' }}
+                                        </td>
+
                                     </tr>
                                     @endif
                                     @empty

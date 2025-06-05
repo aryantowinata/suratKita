@@ -63,15 +63,4 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Bidang::class, 'id_bidang');
     }
-
-    public function generateLoginToken()
-    {
-        $this->login_token = Str::random(64);
-        $this->login_token_expires_at = Carbon::now()->addMinutes(15);
-        $this->save();
-
-        return route('login.token', $this->login_token);
-    }
-
-
 }

@@ -15,4 +15,9 @@ class Bidang extends Model
     {
         return $this->hasMany(User::class, 'id_bidang');
     }
+
+    public function disposisis()
+    {
+        return $this->belongsToMany(Disposisi::class, 'bidang_disposisi');
+    }
 }

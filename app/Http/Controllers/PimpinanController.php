@@ -33,12 +33,11 @@ class PimpinanController extends Controller
             })
             ->with('suratMasuk')
             ->count();
-        $totalUsers = User::whereIn('role', ['kadis', 'kabid', 'sekretaris'])->count();
 
         // Log aktivitas kunjungan dashboard
         LogAktivitasHelper::log('Akses Dashboard', "{$adminData->nama} mengakses halaman dashboard");
 
-        return response()->view('pimpinan.dashboard', compact('adminData', 'totalSuratMasuk', 'totalUsers'))
+        return response()->view('pimpinan.dashboard', compact('adminData', 'totalSuratMasuk'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -171,17 +170,18 @@ class PimpinanController extends Controller
         $adminData = Auth::user();
         $disposisi = Disposisi::findOrFail($id);
         $disposisi->id_pengirim = Auth::id();
-        $disposisi->id_bidang = $request->id_bidang;
-        $disposisi->save();
 
-        // Log aktivitas update bidang disposisi
+        // Sinkronisasi bidang-bidang yang dipilih
+        $disposisi->bidangs()->sync($request->bidang_ids);
+
         LogAktivitasHelper::log(
             'Update Bidang Disposisi',
-            "{$adminData->nama} mengupdate bidang pada disposisi ID: {$disposisi->id} ke bidang ID: {$request->id_bidang}"
+            "{$adminData->nama} mengupdate bidang disposisi ID: {$disposisi->id} ke bidang ID: " . implode(',', $request->bidang_ids)
         );
 
         return redirect()->back()->with('success', 'Bidang berhasil diperbarui.');
     }
+
 
     public function profilePimpinan()
     {
@@ -420,7 +420,6 @@ class PimpinanController extends Controller
 
         // Redirect kembali ke halaman pimpinan surat masuk (atau halaman sebelumnya)
         return redirect()->back()->with('success', 'Instruksi berhasil ditambahkan.');
-
     }
     public function updateDisposisiSuratKeluar(Request $request, $id, FileEncryptionService $fileEncryptionService)
     {
@@ -573,6 +572,4 @@ class PimpinanController extends Controller
 
         return $pdf->download('Laporan_Surat_' . Carbon::now()->format('Ymd_His') . '.pdf');
     }
-
-
 }

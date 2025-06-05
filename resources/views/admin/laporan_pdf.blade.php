@@ -40,9 +40,9 @@
     <h2>Laporan Surat</h2>
     <h4>Periode:
         @if (!$startDate && !$endDate)
-        Semua Waktu
+            Semua Waktu
         @else
-        {{ $startDate ? $startDate : 'Semua Waktu' }} - {{ $endDate ? $endDate : 'Semua Waktu' }}
+            {{ $startDate ? $startDate : 'Semua Waktu' }} - {{ $endDate ? $endDate : 'Semua Waktu' }}
         @endif
     </h4>
 
@@ -61,26 +61,26 @@
         </thead>
         <tbody>
             @foreach($suratMasuk as $index => $surat)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>Surat Masuk</td>
-                <td>{{ $surat->nomor_surat }}</td>
-                <td>{{ $surat->pengirim }}</td>
-                <td>{{ $surat->perihal }}</td>
-                <td>{{ $surat->tanggal_surat }}</td>
-                <td>{{ $surat->status }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>Surat Masuk</td>
+                    <td>{{ $surat->nomor_surat }}</td>
+                    <td>{{ $surat->pengirim }}</td>
+                    <td>{{ $surat->perihal }}</td>
+                    <td>{{ $surat->tanggal_surat }}</td>
+                    <td>{{ $surat->status }}</td>
+                </tr>
             @endforeach
             @foreach($suratKeluar as $index => $surat)
-            <tr>
-                <td>{{ $index + count($suratMasuk) + 1 }}</td>
-                <td>Surat Keluar</td>
-                <td>{{ $surat->nomor_surat }}</td>
-                <td>{{ $surat->pengirim }}</td>
-                <td>{{ $surat->perihal }}</td>
-                <td>{{ $surat->tanggal_surat }}</td>
-                <td>{{ $surat->status }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + count($suratMasuk) + 1 }}</td>
+                    <td>Surat Keluar</td>
+                    <td>{{ $surat->nomor_surat }}</td>
+                    <td>{{ $surat->pengirim }}</td>
+                    <td>{{ $surat->perihal }}</td>
+                    <td>{{ $surat->tanggal_surat }}</td>
+                    <td>{{ $surat->status }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
